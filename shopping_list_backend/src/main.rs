@@ -71,7 +71,7 @@
 // // }
 
 
-use std::{str::FromStr, sync::Mutex};
+use std::{fmt::format, str::FromStr, sync::Mutex};
 
 use actix_web::{cookie::time::format_description::parse, web, App, HttpResponse, HttpServer, Responder};
 use bson::{doc, oid::ObjectId, Document};
@@ -82,6 +82,16 @@ struct AppState {
     collection: Mutex<Collection<Document>>, // You can store any type, String is just an example
 }
 
+struct Item { 
+    name: String,
+}
+
+impl Item {
+    pub fn new(value: String) -> Self {
+        Item { name: value }
+    }
+}
+
 // struct QueryPat
 
 // impl AppState {
@@ -90,26 +100,44 @@ struct AppState {
 
 // Handler functions
 async fn create_item(share_collection: web::Data<AppState>, path: web::Path<String>) -> impl Responder {
-    HttpResponse::Ok().body("Create item")
+    
+    // let new_item = Item::new(path);
+    let new_item = doc! {"name": path.to_string()};
+    let data = share_collection.collection.lock().unwrap();
+    
+    let res = data.insert_one(new_item, None).await.unwrap();
+    let res_string = format!("{:#?}", res);
+    HttpResponse::Ok().body(res_string)
 }
 
 async fn read_item(share_collection: web::Data<AppState>) -> impl Responder {
     println!("Inside GET call");
     let data = share_collection.collection.lock().unwrap();
-    let mut res = data.find(doc!{}, None).await.unwrap();
-    let mut result_vector:Vec<String> = Vec::new();
+    let res = data.find(doc!{}, None).await.unwrap();
+
+
+    
+    let result_vector:Vec<String> = Vec::new();
     let contents = parse_document(res, result_vector).await;
     HttpResponse::Ok().body(contents)
 }
 
 async fn parse_document(mut res: mongodb::Cursor<Document>, mut result_vector: Vec<String>) -> String {
     while let Ok(Some(doc)) = res.try_next().await {
-        let json_string = serde_json::to_string(&doc).unwrap(); 
-        result_vector.push(json_string); 
+        let res_asd = format!("{:#?}", doc);
+        // let json_string = serde_json::to_string(&doc).unwrap(); 
+        result_vector.push(res_asd); 
     }
 
-    let contents = serde_json::to_string(&result_vector).unwrap();
+    let contents = result_vector.join("\n");
+
+    
+    // let  contents = serde_json::to_string(&result_vector).unwrap();
+    // contents.replace("\\", "")
+    // let res_string = format!("{:#?}", contents);
+    // res_string
     contents
+    
 }
 
 async fn update_item() -> impl Responder {
@@ -126,15 +154,18 @@ async fn delete_item(share_collection: web::Data<AppState>, path: web::Path<Stri
     if let Ok(document_id)  = ObjectId::from_str(&path.to_string()){
 
         let res = data.find(doc! {"_id": document_id}, None).await.unwrap();
-        let result_vector = Vec::new();
-        contents = parse_document(res, result_vector).await;
+        let delete_result = data.delete_one(doc!{"_id": document_id},None).await.unwrap();
+        // let result_vector = Vec::new();
+        // contents = parse_document(res, result_vector).await;
+        // println!("{}", parsedelete_result);
+        contents = format!("{:#?}", delete_result);
     
     } else {
         contents = "Invalid Document ID".to_string();
     }
     println!("{contents}");
     
-    HttpResponse::Ok().body(contents)
+    HttpResponse::Ok().body(format!("{}\n", contents))
     // println!("{res}");
 }
 
