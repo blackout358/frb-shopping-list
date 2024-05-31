@@ -71,9 +71,9 @@
 // // }
 
 
-use std::{fmt::format, str::FromStr, sync::Mutex};
+use std::{str::FromStr, sync::Mutex};
 
-use actix_web::{cookie::time::format_description::parse, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{web, App, HttpResponse, HttpServer, Responder};
 use bson::{doc, oid::ObjectId, Document};
 use futures::TryStreamExt;
 use mongodb::{Client, Collection};
@@ -81,16 +81,7 @@ use mongodb::{Client, Collection};
 struct AppState {
     collection: Mutex<Collection<Document>>, // You can store any type, String is just an example
 }
-
-struct Item { 
-    name: String,
-}
-
-impl Item {
-    pub fn new(value: String) -> Self {
-        Item { name: value }
-    }
-}
+ 
 
 // struct QueryPat
 
@@ -149,23 +140,23 @@ async fn delete_item(share_collection: web::Data<AppState>, path: web::Path<Stri
     let data = share_collection.collection.lock().unwrap();
     println!("Passed in value: {}", &path);
 
-
-    let mut contents= String::from("");
+    
+    let mut _contents= String::new();
     if let Ok(document_id)  = ObjectId::from_str(&path.to_string()){
 
-        let res = data.find(doc! {"_id": document_id}, None).await.unwrap();
+        // let res = data.find(doc! {"_id": document_id}, None).await.unwrap();
         let delete_result = data.delete_one(doc!{"_id": document_id},None).await.unwrap();
         // let result_vector = Vec::new();
         // contents = parse_document(res, result_vector).await;
         // println!("{}", parsedelete_result);
-        contents = format!("{:#?}", delete_result);
+        _contents = format!("{:#?}", delete_result);
     
     } else {
-        contents = "Invalid Document ID".to_string();
+        _contents = "Invalid Document ID".to_string();
     }
-    println!("{contents}");
+    println!("{_contents}");
     
-    HttpResponse::Ok().body(format!("{}\n", contents))
+    HttpResponse::Ok().body(format!("{}\n", _contents))
     // println!("{res}");
 }
 
