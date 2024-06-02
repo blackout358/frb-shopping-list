@@ -26,15 +26,12 @@ async fn read_item(State(state): State<AppState>) -> String {
     println!("Inside GET call");
     let coll = state.collection.clone();
     let res = coll.find(doc! {}, None).await.unwrap();
-    let result_vector: Vec<String> = Vec::new();
-    let contents = parse_document(res, result_vector).await;
+    let contents = parse_document(res).await;
     contents
 }
 
-async fn parse_document(
-    mut res: mongodb::Cursor<Document>,
-    mut result_vector: Vec<String>,
-) -> String {
+async fn parse_document(mut res: mongodb::Cursor<Document>) -> String {
+    let mut result_vector: Vec<String> = Vec::new();
     while let Ok(Some(doc)) = res.try_next().await {
         // println!("{:?}", &doc);
         // let res_str = format!("{}", doc);
