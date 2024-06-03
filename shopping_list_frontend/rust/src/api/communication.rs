@@ -1,3 +1,5 @@
+use std::fmt::format;
+
 use flutter_rust_bridge::frb;
 use serde::{Deserialize, Serialize};
 use serde_json::{self, json};
@@ -45,4 +47,13 @@ pub async fn get_items() -> Vec<Item> {
             items
         }
     }
+}
+
+pub async fn delete_item(id: String) {
+    let client = reqwest::Client::new();
+    let res = client
+        .delete(format!("http://172.19.1.128:7878/items/{}", id))
+        .send()
+        .await;
+    println!("{:?}", res);
 }
