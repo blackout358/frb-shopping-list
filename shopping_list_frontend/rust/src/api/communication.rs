@@ -57,3 +57,12 @@ pub async fn delete_item(id: String) {
         .await;
     println!("{:?}", res);
 }
+
+pub async fn add_item(name: String) {
+    let client = reqwest::Client::new();
+    let res = client
+        .post(format!("http://172.19.1.128:7878/items/{}", name))
+        .send()
+        .await;
+    println!("{:?}", res);
+}
