@@ -37,7 +37,7 @@ async fn parse_document(mut res: mongodb::Cursor<Document>) -> String {
         // println!("{:?}", &doc);
         // let res_str = format!("{}", doc);
         let res_str = serde_json::to_string(&doc).expect("Error with seriailse document");
-        println!("{:?}", res_str);
+        // println!("{:?}", res_str);
         result_vector.push(res_str);
     }
 
