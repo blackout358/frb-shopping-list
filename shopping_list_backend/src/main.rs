@@ -27,6 +27,7 @@ async fn read_item(State(state): State<AppState>) -> String {
     let coll = state.collection.clone();
     let res = coll.find(doc! {}, None).await.unwrap();
     let contents = parse_document(res).await;
+    println!("Response: \n{}", contents);
     contents
 }
 
@@ -41,9 +42,9 @@ async fn parse_document(mut res: mongodb::Cursor<Document>) -> String {
     }
 
     // let contents = result_vector.join("\n");
-    let mut contents = result_vector.join(",");
-    contents.push(']');
-    contents.insert_str(0, "[");
+    let mut contents = result_vector.join("\n");
+    // contents.push(']');
+    // contents.insert_str(0, "[");
     // match contents {
     //     Ok(contents) => contents,
     //     Err(err) => format!("{err}"),
