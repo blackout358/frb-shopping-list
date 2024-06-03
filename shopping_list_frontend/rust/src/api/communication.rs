@@ -36,9 +36,13 @@ pub async fn get_items() -> Vec<Item> {
         }
         Err(err) => {
             println!("{err}");
-            // "Nothing".to_string()
+            items.push(Item {
+                _id: Oid {
+                    oid: "Error".to_string(),
+                },
+                name: err.to_string(),
+            });
             items
         }
     }
-    // "Test".to_string()
 }
