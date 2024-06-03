@@ -39,7 +39,14 @@ class _MainPageState extends State<MainPage> {
                       itemCount: snapshot.data!.length,
                       itemBuilder: (context, index) {
                         var item = snapshot.data![index];
-                        return ItemCard(item: item);
+                        return ItemCard(
+                          item: item,
+                          onPressed: () {
+                            deleteItem(id: item.id.oid);
+                            // snapshot.data!.removeAt(index);
+                            setState(() {});
+                          },
+                        );
                       },
                     ),
                   );
