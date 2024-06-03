@@ -1,27 +1,43 @@
+use flutter_rust_bridge::frb;
 use serde::{Deserialize, Serialize};
 use serde_json::{self, json};
 
-pub async fn get_items() -> String {
+use crate::api::item_model::{Item, Oid};
+
+pub async fn get_items() -> Vec<Item> {
     let res = reqwest::get("http://172.19.1.128:7878/items/").await;
     println!("Respone: {:?}", res);
+    let mut items: Vec<Item> = Vec::new();
     match res {
         Ok(res) => {
             println!("we inside");
-            // let mut body = String::new();
-            // res.read_to_string(&mut body);
             let _temp = (res.text()).await;
             match _temp {
                 Ok(data) => {
-                    let ser_data = json!(data);
-                    println!("{:#}", ser_data);
-                    return data;
+                    println!("{data}");
+                    let parts = data.split("\n");
+
+                    for part in parts {
+                        match serde_json::from_str::<Item>(&part) {
+                            Ok(value) => items.push(value),
+                            Err(_) => println!("ERROR PARSING DOCUMENT: {}", &part),
+                        }
+                    }
+                    println!("{:?}", items);
                 }
-                Err(err) => return err.to_string(),
+                Err(err) => items.push(Item {
+                    _id: Oid {
+                        oid: "Error".to_string(),
+                    },
+                    name: err.to_string(),
+                }),
             }
+            items
         }
         Err(err) => {
             println!("{err}");
-            "Nothing".to_string()
+            // "Nothing".to_string()
+            items
         }
     }
     // "Test".to_string()
