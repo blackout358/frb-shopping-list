@@ -5,6 +5,7 @@ import 'package:shopping_list_frontend/Widgets/item_card.dart';
 import 'package:shopping_list_frontend/Widgets/refresh_floating_button.dart';
 import 'package:shopping_list_frontend/src/rust/api/communication.dart';
 import 'package:shopping_list_frontend/src/rust/api/item_model.dart';
+import 'package:shopping_list_frontend/Widgets/alert_dialog.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -17,9 +18,14 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       floatingActionButton: FloatingRefreshButton(
-        onPressed: () {
+        onPressedRefresh: () {
           setState(() {});
+        },
+        onPressedAdd: () {
+          MyAlertDialog.showMyDialog(context);
+          // setState(() {});
         },
       ),
       body: Column(
@@ -43,7 +49,6 @@ class _MainPageState extends State<MainPage> {
                           item: item,
                           onPressed: () {
                             deleteItem(id: item.id.oid);
-                            // snapshot.data!.removeAt(index);
                             setState(() {});
                           },
                         );

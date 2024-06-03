@@ -891,6 +891,7 @@ name = "rust_lib_shopping_list_frontend"
 version = "0.1.0"
 dependencies = [
  "flutter_rust_bridge",
+ "openssl-sys",
  "reqwest",
  "serde",
  "serde_json",

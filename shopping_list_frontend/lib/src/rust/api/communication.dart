@@ -9,3 +9,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 Future<List<Item>> getItems({dynamic hint}) =>
     RustLib.instance.api.crateApiCommunicationGetItems(hint: hint);
+
+Future<void> deleteItem({required String id, dynamic hint}) =>
+    RustLib.instance.api.crateApiCommunicationDeleteItem(id: id, hint: hint);
+
+Future<void> addItem({required String name, dynamic hint}) =>
+    RustLib.instance.api.crateApiCommunicationAddItem(name: name, hint: hint);
