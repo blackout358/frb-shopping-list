@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shopping_list_frontend/src/rust/api/communication.dart';
+import 'package:shopping_list_frontend/src/rust/api/item_model.dart';
 import 'package:shopping_list_frontend/src/rust/api/simple.dart';
 import 'package:shopping_list_frontend/src/rust/frb_generated.dart';
 // import
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       home: Scaffold(
         appBar: AppBar(title: const Text('flutter_rust_bridge quickstart')),
         body: Center(
-          child: FutureBuilder<String>(
+          child: FutureBuilder<List<Item>>(
               future: getItems(),
               builder: (context, snapshot) {
                 // Check if the future has completed

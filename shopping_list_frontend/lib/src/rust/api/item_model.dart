@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 class Item {
-  final String id;
+  final Oid id;
   final String name;
 
   const Item({
@@ -25,4 +25,20 @@ class Item {
           runtimeType == other.runtimeType &&
           id == other.id &&
           name == other.name;
+}
+
+class Oid {
+  final String oid;
+
+  const Oid({
+    required this.oid,
+  });
+
+  @override
+  int get hashCode => oid.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Oid && runtimeType == other.runtimeType && oid == other.oid;
 }
