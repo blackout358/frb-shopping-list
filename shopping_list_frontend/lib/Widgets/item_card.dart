@@ -3,7 +3,8 @@ import 'package:shopping_list_frontend/src/rust/api/item_model.dart';
 
 class ItemCard extends StatelessWidget {
   final Item item;
-  const ItemCard({super.key, required this.item});
+  final VoidCallback onPressed;
+  const ItemCard({super.key, required this.item, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class ItemCard extends StatelessWidget {
         subtitle: Text(item.id.oid),
         trailing: IconButton(
           icon: const Icon(Icons.delete),
-          onPressed: () {},
+          onPressed: onPressed,
         ),
       ),
     );
