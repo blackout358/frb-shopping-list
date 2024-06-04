@@ -70,6 +70,10 @@ async fn delete_item(Path(id): Path<String>, State(state): State<AppState>) -> S
     _contents
 }
 
+async fn hello_world() -> &'static str {
+    "Test"
+}
+
 #[tokio::main]
 async fn main() {
     let item_collection: Collection<Document> = connect_to_db().await.unwrap();
@@ -78,7 +82,8 @@ async fn main() {
         collection: item_collection.clone(),
     };
     let app = Router::new()
-        .route("/items/", get(read_item))
+        .route("/", get(hello_world))
+        .route("/items", get(read_item))
         .route("/items/:id", post(create_item).delete(delete_item))
         .with_state(state);
     let listener = tokio::net::TcpListener::bind("172.19.1.128:7878")
