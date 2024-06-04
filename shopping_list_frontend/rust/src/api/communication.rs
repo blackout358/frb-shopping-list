@@ -7,7 +7,7 @@ use serde_json::{self, json};
 use crate::api::item_model::{Item, Oid};
 
 pub async fn get_items() -> Vec<Item> {
-    let res = reqwest::get("http://172.19.1.128:7878/items/").await;
+    let res = reqwest::get("http://172.19.1.128:7878/items").await;
     println!("Respone: {:?}", res);
     let mut items: Vec<Item> = Vec::new();
     match res {
@@ -29,7 +29,7 @@ pub async fn get_items() -> Vec<Item> {
                 }
                 Err(err) => items.push(Item {
                     _id: Oid {
-                        oid: "Error".to_string(),
+                        oid: "Result Error".to_string(),
                     },
                     name: err.to_string(),
                 }),
@@ -40,7 +40,7 @@ pub async fn get_items() -> Vec<Item> {
             println!("{err}");
             items.push(Item {
                 _id: Oid {
-                    oid: "Error".to_string(),
+                    oid: "REQUEST ERROR".to_string(),
                 },
                 name: err.to_string(),
             });
