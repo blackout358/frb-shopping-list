@@ -1,44 +1,18 @@
-use std::{
-    fs,
-    net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener},
-    str,
-    str::FromStr,
-};
+use std::{fs, net::SocketAddr, str::FromStr};
 
-// use actix_web::{web, App, HttpResponse, HttpServer, Responder};
-// use axum::body::BoxBody;
 use axum::{
-    body::Body,
     extract::{Path, State},
-    http::{self, Response},
-    middleware::{self, Next},
-    routing::{get, post, Route},
+    http::{self},
+    routing::{get, post},
     Router,
 };
-
-// use axum_server::tls_rustls::RustlsConfig;
 use axum_helmet::{CrossOriginEmbedderPolicy, CrossOriginOpenerPolicy, Helmet, HelmetLayer};
-use bson::{doc, oid::ObjectId, ser, Document};
+use bson::{doc, oid::ObjectId, Document};
 use futures::TryStreamExt;
-use http::{header::HeaderName, HeaderValue, Method, Request};
-use hyper::client::HttpConnector;
-use hyper::Client as HTTP_Client;
+use http::Method;
 use mongodb::{Client, Collection};
-use native_tls::{Identity, TlsAcceptor};
-use tokio_rustls::rustls::{self, server::NoClientAuth, ServerConfig};
-use tower::ServiceExt;
-
-use std::io::BufReader;
-// use reqwest::Method;
-// use tower_http::add_extension::AddExtensionLayer;
+use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::services::ServeDir;
-use tower_http::{
-    cors::{AllowOrigin, Any, CorsLayer},
-    services::ServeFile,
-};
-// use tower_http::trace::TraceLayer;
-// use tower_http::BoxError:
-// use tower::service_fn::
 #[derive(Clone)]
 struct AppState {
     collection: Collection<Document>,
@@ -62,21 +36,10 @@ async fn read_item(State(state): State<AppState>) -> String {
 async fn parse_document(mut res: mongodb::Cursor<Document>) -> String {
     let mut result_vector: Vec<String> = Vec::new();
     while let Ok(Some(doc)) = res.try_next().await {
-        // println!("{:?}", &doc);
-        // let res_str = format!("{}", doc);
         let res_str = serde_json::to_string(&doc).expect("Error with seriailse document");
-        // println!("{:?}", res_str);
         result_vector.push(res_str);
     }
-
-    // let contents = result_vector.join("\n");
     let contents = result_vector.join("\n");
-    // contents.push(']');
-    // contents.insert_str(0, "[");
-    // match contents {
-    //     Ok(contents) => contents,
-    //     Err(err) => format!("{err}"),
-    // }
     contents
 }
 
