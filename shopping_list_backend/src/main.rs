@@ -2,8 +2,8 @@ use std::{fs, net::SocketAddr, str::FromStr};
 
 use axum::{
     extract::{Path, State},
-    http::{self},
-    routing::{get, post},
+    http,
+    routing::{get, post, put},
     Router,
 };
 use axum_helmet::{CrossOriginEmbedderPolicy, CrossOriginOpenerPolicy, Helmet, HelmetLayer};
@@ -29,10 +29,30 @@ async fn read_item(State(state): State<AppState>) -> String {
     let coll = state.collection.clone();
     let res = coll.find(doc! {}, None).await.unwrap();
     let contents = parse_document(res).await;
-    println!("Response: \n{}", contents);
+    // println!("Response: \n{}", contents);
     contents
 }
+async fn update_item(
+    Path((id, new)): Path<(String, String)>,
 
+    State(state): State<AppState>,
+) -> String {
+    println!("Inside UPDATE call");
+    let data = state.collection.clone();
+    println!("Passed in value: {} New Value: {}", &id, &new);
+    let mut _contents = String::new();
+    if let Ok(document_id) = ObjectId::from_str(&id.to_string()) {
+        let query = doc! {"_id": document_id};
+        let to_update = doc! {"$set": doc! {"name": new}};
+        let update_result = data.update_one(query, to_update, None).await;
+        _contents = format!("{:#?}", update_result);
+    } else {
+        _contents = "Invalid Document ID\n".to_string();
+    }
+    // println!("{_contents}");
+    _contents
+    // "UPDATE CALL".to_string()
+}
 async fn parse_document(mut res: mongodb::Cursor<Document>) -> String {
     let mut result_vector: Vec<String> = Vec::new();
     while let Ok(Some(doc)) = res.try_next().await {
@@ -59,17 +79,6 @@ async fn delete_item(Path(id): Path<String>, State(state): State<AppState>) -> S
     }
     println!("{_contents}");
     _contents
-}
-
-async fn load_webapp() -> Result<reqwest::Response, reqwest::Error> {
-    let request = reqwest::get("http://127.0.0.1:9800/webapp").await;
-    println!("{:?}", request);
-    // let response_builder = ;
-    match request {
-        Ok(content) => Ok(content),
-        Err(err) => Err(err),
-    }
-    // Ok(request.unwrap())
 }
 
 async fn hello_world() -> String {
@@ -103,17 +112,16 @@ async fn main() {
         .route("/", get(hello_world))
         .route("/items", get(read_item))
         .route("/items/:id", post(create_item).delete(delete_item))
+        .route("/items/:id/:new", put(update_item))
         .nest_service("/webapp", app_service())
-        // .nest_service("/testapp", test_app)
         .layer(cors_layer())
         .layer(HelmetLayer::new(
             Helmet::new()
                 .add(CrossOriginOpenerPolicy::SameOrigin)
                 .add(CrossOriginEmbedderPolicy::RequireCorp),
         ))
-        // .layer(header_layer())
-        // .layer(TraceLayer::new_for_http())
         .with_state(state);
+
     // Load the TLS configuration
     // let config = match axum_server::tls_rustls::RustlsConfig::from_pem_file(
     //     "certs/cert.pem",
