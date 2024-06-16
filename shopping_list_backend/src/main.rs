@@ -1,33 +1,41 @@
-use std::str::FromStr;
+use std::{
+    fs,
+    net::{IpAddr, Ipv4Addr, SocketAddr, TcpListener},
+    str,
+    str::FromStr,
+};
 
 // use actix_web::{web, App, HttpResponse, HttpServer, Responder};
+// use axum::body::BoxBody;
 use axum::{
     body::Body,
     extract::{Path, State},
     http::{self, Response},
     middleware::{self, Next},
-    response::IntoResponse,
-    routing::{get, post},
+    routing::{get, post, Route},
     Router,
 };
-use axum_helmet::{
-    CrossOriginEmbedderPolicy, CrossOriginOpenerPolicy, CrossOriginResourcePolicy, Helmet,
-    HelmetLayer,
-};
-use bson::{doc, oid::ObjectId, Document};
+
+// use axum_server::tls_rustls::RustlsConfig;
+use axum_helmet::{CrossOriginEmbedderPolicy, CrossOriginOpenerPolicy, Helmet, HelmetLayer};
+use bson::{doc, oid::ObjectId, ser, Document};
 use futures::TryStreamExt;
-use http::{
-    header::{self, HeaderName, AUTHORIZATION, CONTENT_TYPE},
-    HeaderMap, HeaderValue, Method, Request,
-};
+use http::{header::HeaderName, HeaderValue, Method, Request};
+use hyper::client::HttpConnector;
+use hyper::Client as HTTP_Client;
 use mongodb::{Client, Collection};
-use reqwest::header::ACCESS_CONTROL_ALLOW_HEADERS;
-use tower::ServiceBuilder;
-use tower_http::set_header::SetResponseHeaderLayer;
+use native_tls::{Identity, TlsAcceptor};
+use tokio_rustls::rustls::{self, server::NoClientAuth, ServerConfig};
+use tower::ServiceExt;
+
+use std::io::BufReader;
 // use reqwest::Method;
 // use tower_http::add_extension::AddExtensionLayer;
-use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::services::ServeDir;
+use tower_http::{
+    cors::{AllowOrigin, Any, CorsLayer},
+    services::ServeFile,
+};
 // use tower_http::trace::TraceLayer;
 // use tower_http::BoxError:
 // use tower::service_fn::
@@ -90,8 +98,19 @@ async fn delete_item(Path(id): Path<String>, State(state): State<AppState>) -> S
     _contents
 }
 
-async fn hello_world() -> &'static str {
-    "Test"
+async fn load_webapp() -> Result<reqwest::Response, reqwest::Error> {
+    let request = reqwest::get("http://127.0.0.1:9800/webapp").await;
+    println!("{:?}", request);
+    // let response_builder = ;
+    match request {
+        Ok(content) => Ok(content),
+        Err(err) => Err(err),
+    }
+    // Ok(request.unwrap())
+}
+
+async fn hello_world() -> String {
+    "Hello world from rust".to_string()
 }
 
 fn cors_layer() -> CorsLayer {
@@ -99,45 +118,9 @@ fn cors_layer() -> CorsLayer {
         .allow_origin(AllowOrigin::mirror_request())
         .allow_methods(vec![Method::GET, Method::POST, Method::PUT, Method::DELETE])
         .allow_headers(Any)
-    // .expose_headers(vec![
-    //     HeaderName::try_from("Cross-Origin-Opener-Policy").unwrap(),
-    //     HeaderName::try_from("Cross-Origin-Embedder-Policy").unwrap(),
-    // ])
-}
-
-// fn header_layer() -> HeaderMap {
-//     let mut headers = HeaderMap::new();
-//     headers.insert(
-//         "Cross-Origin-Opener-Policy",
-//         HeaderValue::from_static("same-origin"),
-//     );
-//     headers.insert(
-//         "Cross-Origin-Opener-Policy",
-//         HeaderValue::from_static("require-corp"),
-//     );
-//     headers
-// }
-
-// async fn header_layer(request: Request, next: Next) -> Response {
-//     let mut response = next.run(request).await;
-//     response.headers_mut().insert(
-//         header::CACHE_CONTROL,
-//         HeaderValue::from_static("public, max-age=3600"),
-//     );
-//     response
-// }
-
-async fn set_static_cache_control(request: Request<Body>, next: Next) -> Response<Body> {
-    let mut response = next.run(request).await;
-    response.headers_mut().insert(
-        HeaderName::from_static("cross-origin-opener-policy"),
-        HeaderValue::from_static("same-origin"),
-    );
-    response
 }
 
 fn app_service() -> ServeDir {
-    println!("Sending web app");
     let serve_dir = ServeDir::new("../shopping_list_frontend/build/web");
 
     serve_dir
@@ -145,43 +128,60 @@ fn app_service() -> ServeDir {
 
 #[tokio::main]
 async fn main() {
+    // Define the routes and handlers
     let item_collection: Collection<Document> = connect_to_db().await.unwrap();
 
     let state = AppState {
         collection: item_collection.clone(),
     };
+    let _cors = CorsLayer::new().allow_methods(Any).allow_origin(Any);
 
-    let helmet = HelmetLayer::new(
-        Helmet::new()
-            .add(CrossOriginOpenerPolicy::same_origin())
-            .add(CrossOriginEmbedderPolicy::require_corp()),
-    );
-    let he = axum_helmet::Helmet::default();
-    let _cors = CorsLayer::new()
-        // allow `GET` and `POST` when accessing the resource
-        .allow_methods(Any)
-        // allow requests from any origin
-        .allow_origin(Any);
-
-    let app = Router::new()
+    let app: Router = Router::new()
         .route("/", get(hello_world))
         .route("/items", get(read_item))
         .route("/items/:id", post(create_item).delete(delete_item))
-        // .layer(he)
         .nest_service("/webapp", app_service())
+        // .nest_service("/testapp", test_app)
         .layer(cors_layer())
         .layer(HelmetLayer::new(
             Helmet::new()
-                .add(CrossOriginOpenerPolicy::same_origin())
-                .add(CrossOriginEmbedderPolicy::require_corp()), // .add(CrossOriginResourcePolicy::cross_origin()),
+                .add(CrossOriginOpenerPolicy::SameOrigin)
+                .add(CrossOriginEmbedderPolicy::RequireCorp),
         ))
         // .layer(header_layer())
         // .layer(TraceLayer::new_for_http())
         .with_state(state);
-    let listener = tokio::net::TcpListener::bind("172.19.1.128:7878")
+    // Load the TLS configuration
+    // let config = match axum_server::tls_rustls::RustlsConfig::from_pem_file(
+    //     "certs/cert.pem",
+    //     "certs/key.pem",
+    // )
+
+    let config = match axum_server::tls_rustls::RustlsConfig::from_pem_file(
+        "certs/172.19.1.128.pem",
+        "certs/172.19.1.128-key.pem",
+    )
+    .await
+    {
+        Ok(cfg) => cfg,
+        Err(e) => {
+            eprintln!("Error loading TLS config: {}", e);
+            return;
+        }
+    };
+
+    // Define the address to listen on
+    // let addr = SocketAddr::from(([127, 0, 0, 1], 7878));
+    let addr = SocketAddr::from(([172, 19, 1, 128], 7878));
+    println!("Listening on https://{}", addr);
+
+    // Start the server with Rustls
+    if let Err(e) = axum_server::bind_rustls(addr, config)
+        .serve(app.into_make_service())
         .await
-        .unwrap();
-    axum::serve(listener, app).await.unwrap();
+    {
+        eprintln!("Server error: {}", e);
+    }
 }
 
 async fn connect_to_db() -> mongodb::error::Result<Collection<Document>> {

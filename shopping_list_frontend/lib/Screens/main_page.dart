@@ -15,6 +15,10 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  void _reloadPage() {
+    setState(() {});
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,12 +28,13 @@ class _MainPageState extends State<MainPage> {
           setState(() {});
         },
         onPressedAdd: () {
-          MyAlertDialog.showMyDialog(context);
+          MyAlertDialog.showMyDialog(context, _reloadPage);
           // setState(() {});
         },
       ),
       body: Column(
         children: [
+          // Text("Hello")
           FutureBuilder<List<Item>>(
               future: getItems(),
               builder: (context, snapshot) {
@@ -39,7 +44,6 @@ class _MainPageState extends State<MainPage> {
                 } else if (snapshot.hasError) {
                   return Text('Error: ${snapshot.error}'); // Show error message
                 } else {
-                  // Show data from the future
                   return Expanded(
                     child: ListView.builder(
                       itemCount: snapshot.data!.length,
@@ -49,6 +53,7 @@ class _MainPageState extends State<MainPage> {
                           item: item,
                           onPressed: () {
                             deleteItem(id: item.id.oid);
+                            snapshot.data!.removeAt(index);
                             setState(() {});
                           },
                         );

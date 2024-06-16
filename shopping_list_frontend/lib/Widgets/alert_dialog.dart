@@ -26,6 +26,7 @@ class MyAlertDialog extends StatelessWidget {
       onPressed: () {
         addItem(name: nameController.text);
         Navigator.of(context).pop();
+        onPressed();
       },
       child: const Text("Confirm"),
     );
@@ -41,13 +42,17 @@ class MyAlertDialog extends StatelessWidget {
     );
   }
 
-  static Future<void> showMyDialog(BuildContext context) {
+  static Future<void> showMyDialog(
+      BuildContext context, VoidCallback onPressed) {
+    // final VoidCallback onPressed;
     return showDialog<void>(
         context: context,
         barrierDismissible: true,
         builder: (BuildContext context) {
           return MyAlertDialog(
-              dialogText: "asd", onPressed: () {}, dialogTitle: "dialogTitle");
+              dialogText: "Enter Item Name",
+              onPressed: onPressed,
+              dialogTitle: "Add Item");
         });
   }
 }

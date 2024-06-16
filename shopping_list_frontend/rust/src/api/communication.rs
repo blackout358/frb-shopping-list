@@ -7,9 +7,11 @@ use serde_json::{self, json};
 use crate::api::item_model::{Item, Oid};
 
 pub async fn get_items() -> Vec<Item> {
-    let res = reqwest::get("http://172.19.1.128:7878/items").await;
+    let client = reqwest::Client::builder().build().unwrap();
+    let res = client.get("https://172.19.1.128:7878/items").send().await;
     println!("Respone: {:?}", res);
     let mut items: Vec<Item> = Vec::new();
+    // items
     match res {
         Ok(res) => {
             println!("we inside");
@@ -18,6 +20,8 @@ pub async fn get_items() -> Vec<Item> {
                 Ok(data) => {
                     println!("{data}");
                     let parts = data.split("\n");
+
+                    // let collection = parts;
 
                     for part in parts {
                         match serde_json::from_str::<Item>(&part) {
@@ -50,18 +54,20 @@ pub async fn get_items() -> Vec<Item> {
 }
 
 pub async fn delete_item(id: String) {
-    let client = reqwest::Client::new();
-    let res = client
-        .delete(format!("http://172.19.1.128:7878/items/{}", id))
+    let res = reqwest::Client::builder()
+        .build()
+        .unwrap()
+        .delete(format!("https://172.19.1.128:7878/items/{}", id))
         .send()
         .await;
-    println!("{:?}", res);
+    println!("{:?}\n", res);
 }
 
 pub async fn add_item(name: String) {
-    let client = reqwest::Client::new();
-    let res = client
-        .post(format!("http://172.19.1.128:7878/items/{}", name))
+    let res = reqwest::Client::builder()
+        .build()
+        .unwrap()
+        .post(format!("https://172.19.1.128:7878/items/{}", name))
         .send()
         .await;
     println!("{:?}", res);

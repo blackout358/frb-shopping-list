@@ -30,14 +30,13 @@ class _MyTextFieldState extends State<MyTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      autofocus: true,
       focusNode: widget.focusNode,
       controller: widget.controller,
       obscureText: hideText,
       decoration: InputDecoration(
         enabledBorder: const OutlineInputBorder(
-          borderSide: BorderSide(
-              // color: Color(0xFF7E7E7E),
-              ),
+          borderSide: BorderSide(),
         ),
         focusedBorder: const OutlineInputBorder(
           borderSide: BorderSide(
@@ -59,6 +58,7 @@ class _MyTextFieldState extends State<MyTextField> {
         // fillColor: const Color(0xFF7E7E7E),
         filled: true,
         hintText: widget.hintText,
+
         // hintStyle: const TextStyle(color: Colors.white),
       ),
     );
