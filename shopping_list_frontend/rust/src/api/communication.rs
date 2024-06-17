@@ -72,3 +72,16 @@ pub async fn add_item(name: String) {
         .await;
     println!("{:?}", res);
 }
+
+pub async fn update_item(id: String, new_name: String) {
+    let res = reqwest::Client::builder()
+        .build()
+        .unwrap()
+        .put(format!(
+            "https://172.19.1.128:7878/items/{}/{}",
+            id, new_name
+        ))
+        .send()
+        .await;
+    println!("{:?}", res);
+}

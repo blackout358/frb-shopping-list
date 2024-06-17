@@ -38,6 +38,7 @@ dependencies:
   rust_lib_shopping_list_frontend:
     path: rust_builder
   flutter_rust_bridge: 2.0.0-dev.38
+  flutter_slidable: ^3.1.0
 
 dev_dependencies:
   flutter_test:

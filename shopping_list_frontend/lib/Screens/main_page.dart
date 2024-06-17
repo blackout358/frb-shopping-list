@@ -20,6 +20,10 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void initState() {
+    // List<Item>> items = getItems();
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
@@ -28,13 +32,12 @@ class _MainPageState extends State<MainPage> {
           setState(() {});
         },
         onPressedAdd: () {
-          MyAlertDialog.showMyDialog(context, _reloadPage);
+          MyAlertDialog.addNewItem(context, _reloadPage);
           // setState(() {});
         },
       ),
       body: Column(
         children: [
-          // Text("Hello")
           FutureBuilder<List<Item>>(
               future: getItems(),
               builder: (context, snapshot) {
@@ -53,9 +56,18 @@ class _MainPageState extends State<MainPage> {
                           item: item,
                           onPressed: () {
                             deleteItem(id: item.id.oid);
-                            snapshot.data!.removeAt(index);
-                            setState(() {});
+                            // snapshot.data!.removeAt(index);
+                            // setState(() {});
                           },
+                          deletePressed: () {
+                            deleteItem(id: item.id.oid);
+                            _reloadPage();
+                          },
+                          updatePressed: () {
+                            MyAlertDialog.showUpdateDialog(
+                                context, item.id.oid, _reloadPage);
+                          },
+                          // deletePressed: () {},
                         );
                       },
                     ),
