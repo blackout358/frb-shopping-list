@@ -43,7 +43,8 @@ class MyAlertDialog extends StatelessWidget {
     );
   }
 
-  static Future<void> addNewItem(BuildContext context, VoidCallback onPressed) {
+  static Future<void> addNewItem(BuildContext context, VoidCallback onPressed,
+      CommunicationRemote remote) {
     TextEditingController textCtrl = TextEditingController();
     return showDialog<void>(
         context: context,
@@ -52,7 +53,7 @@ class MyAlertDialog extends StatelessWidget {
           return MyAlertDialog(
             dialogText: "Enter Item Name",
             onPressed: () {
-              addItem(name: textCtrl.text);
+              remote.addItem(name: textCtrl.text);
               onPressed();
             },
             dialogTitle: "Add Item",
@@ -61,8 +62,8 @@ class MyAlertDialog extends StatelessWidget {
         });
   }
 
-  static Future<void> showUpdateDialog(
-      BuildContext context, String id, VoidCallback onPressed) {
+  static Future<void> showUpdateDialog(BuildContext context, String id,
+      VoidCallback onPressed, CommunicationRemote remote) {
     TextEditingController textCtrl = TextEditingController();
 
     return showDialog<void>(
@@ -72,7 +73,7 @@ class MyAlertDialog extends StatelessWidget {
           return MyAlertDialog(
             dialogText: "Enter New Name",
             onPressed: () {
-              updateItem(id: id, newName: textCtrl.text);
+              remote.updateItem(id: id, newName: textCtrl.text);
               onPressed();
             },
             dialogTitle: "Update Item Name",

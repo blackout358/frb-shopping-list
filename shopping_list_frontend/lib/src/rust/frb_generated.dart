@@ -59,7 +59,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.0.0-dev.38';
 
   @override
-  int get rustContentHash => -1015380912;
+  int get rustContentHash => 473530226;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -70,15 +70,34 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  Future<void> crateApiCommunicationAddItem({required String name});
+  Future<void> crateApiCommunicationCommunicationRemoteAddItem(
+      {required CommunicationRemote that, required String name});
 
-  Future<void> crateApiCommunicationDeleteItem({required String id});
+  Future<void> crateApiCommunicationCommunicationRemoteDeleteItem(
+      {required CommunicationRemote that, required String id});
 
-  Future<List<Item>> crateApiCommunicationGetItems();
+  Future<List<Item>> crateApiCommunicationCommunicationRemoteGetItems(
+      {required CommunicationRemote that});
+
+  CommunicationRemote crateApiCommunicationCommunicationRemoteNew();
+
+  Future<void> crateApiCommunicationCommunicationRemoteUpdateItem(
+      {required CommunicationRemote that,
+      required String id,
+      required String newName});
 
   String crateApiSimpleGreet({required String name});
 
   Future<void> crateApiSimpleInitApp();
+
+  RustArcIncrementStrongCountFnType
+      get rust_arc_increment_strong_count_CommunicationRemote;
+
+  RustArcDecrementStrongCountFnType
+      get rust_arc_decrement_strong_count_CommunicationRemote;
+
+  CrossPlatformFinalizerArg
+      get rust_arc_decrement_strong_count_CommunicationRemotePtr;
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -90,10 +109,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  Future<void> crateApiCommunicationAddItem({required String name}) {
+  Future<void> crateApiCommunicationCommunicationRemoteAddItem(
+      {required CommunicationRemote that, required String name}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+            that, serializer);
         sse_encode_String(name, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 1, port: port_);
@@ -102,23 +124,26 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeSuccessData: sse_decode_unit,
         decodeErrorData: null,
       ),
-      constMeta: kCrateApiCommunicationAddItemConstMeta,
-      argValues: [name],
+      constMeta: kCrateApiCommunicationCommunicationRemoteAddItemConstMeta,
+      argValues: [that, name],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateApiCommunicationAddItemConstMeta =>
+  TaskConstMeta get kCrateApiCommunicationCommunicationRemoteAddItemConstMeta =>
       const TaskConstMeta(
-        debugName: "add_item",
-        argNames: ["name"],
+        debugName: "CommunicationRemote_add_item",
+        argNames: ["that", "name"],
       );
 
   @override
-  Future<void> crateApiCommunicationDeleteItem({required String id}) {
+  Future<void> crateApiCommunicationCommunicationRemoteDeleteItem(
+      {required CommunicationRemote that, required String id}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+            that, serializer);
         sse_encode_String(id, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 2, port: port_);
@@ -127,23 +152,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeSuccessData: sse_decode_unit,
         decodeErrorData: null,
       ),
-      constMeta: kCrateApiCommunicationDeleteItemConstMeta,
-      argValues: [id],
+      constMeta: kCrateApiCommunicationCommunicationRemoteDeleteItemConstMeta,
+      argValues: [that, id],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateApiCommunicationDeleteItemConstMeta =>
-      const TaskConstMeta(
-        debugName: "delete_item",
-        argNames: ["id"],
-      );
+  TaskConstMeta
+      get kCrateApiCommunicationCommunicationRemoteDeleteItemConstMeta =>
+          const TaskConstMeta(
+            debugName: "CommunicationRemote_delete_item",
+            argNames: ["that", "id"],
+          );
 
   @override
-  Future<List<Item>> crateApiCommunicationGetItems() {
+  Future<List<Item>> crateApiCommunicationCommunicationRemoteGetItems(
+      {required CommunicationRemote that}) {
     return handler.executeNormal(NormalTask(
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+            that, serializer);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
             funcId: 3, port: port_);
       },
@@ -151,17 +180,74 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         decodeSuccessData: sse_decode_list_item,
         decodeErrorData: null,
       ),
-      constMeta: kCrateApiCommunicationGetItemsConstMeta,
+      constMeta: kCrateApiCommunicationCommunicationRemoteGetItemsConstMeta,
+      argValues: [that],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta
+      get kCrateApiCommunicationCommunicationRemoteGetItemsConstMeta =>
+          const TaskConstMeta(
+            debugName: "CommunicationRemote_get_items",
+            argNames: ["that"],
+          );
+
+  @override
+  CommunicationRemote crateApiCommunicationCommunicationRemoteNew() {
+    return handler.executeSync(SyncTask(
+      callFfi: () {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+      },
+      codec: SseCodec(
+        decodeSuccessData:
+            sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiCommunicationCommunicationRemoteNewConstMeta,
       argValues: [],
       apiImpl: this,
     ));
   }
 
-  TaskConstMeta get kCrateApiCommunicationGetItemsConstMeta =>
+  TaskConstMeta get kCrateApiCommunicationCommunicationRemoteNewConstMeta =>
       const TaskConstMeta(
-        debugName: "get_items",
+        debugName: "CommunicationRemote_new",
         argNames: [],
       );
+
+  @override
+  Future<void> crateApiCommunicationCommunicationRemoteUpdateItem(
+      {required CommunicationRemote that,
+      required String id,
+      required String newName}) {
+    return handler.executeNormal(NormalTask(
+      callFfi: (port_) {
+        final serializer = SseSerializer(generalizedFrbRustBinding);
+        sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+            that, serializer);
+        sse_encode_String(id, serializer);
+        sse_encode_String(newName, serializer);
+        pdeCallFfi(generalizedFrbRustBinding, serializer,
+            funcId: 5, port: port_);
+      },
+      codec: SseCodec(
+        decodeSuccessData: sse_decode_unit,
+        decodeErrorData: null,
+      ),
+      constMeta: kCrateApiCommunicationCommunicationRemoteUpdateItemConstMeta,
+      argValues: [that, id, newName],
+      apiImpl: this,
+    ));
+  }
+
+  TaskConstMeta
+      get kCrateApiCommunicationCommunicationRemoteUpdateItemConstMeta =>
+          const TaskConstMeta(
+            debugName: "CommunicationRemote_update_item",
+            argNames: ["that", "id", "newName"],
+          );
 
   @override
   String crateApiSimpleGreet({required String name}) {
@@ -169,7 +255,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       callFfi: () {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         sse_encode_String(name, serializer);
-        return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
+        return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 6)!;
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_String,
@@ -192,7 +278,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       callFfi: (port_) {
         final serializer = SseSerializer(generalizedFrbRustBinding);
         pdeCallFfi(generalizedFrbRustBinding, serializer,
-            funcId: 5, port: port_);
+            funcId: 7, port: port_);
       },
       codec: SseCodec(
         decodeSuccessData: sse_decode_unit,
@@ -208,6 +294,38 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         debugName: "init_app",
         argNames: [],
       );
+
+  RustArcIncrementStrongCountFnType
+      get rust_arc_increment_strong_count_CommunicationRemote => wire
+          .rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote;
+
+  RustArcDecrementStrongCountFnType
+      get rust_arc_decrement_strong_count_CommunicationRemote => wire
+          .rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote;
+
+  @protected
+  CommunicationRemote
+      dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CommunicationRemoteImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  CommunicationRemote
+      dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CommunicationRemoteImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  CommunicationRemote
+      dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CommunicationRemoteImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
 
   @protected
   String dco_decode_String(dynamic raw) {
@@ -263,6 +381,39 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt dco_decode_usize(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeU64(raw);
+  }
+
+  @protected
+  CommunicationRemote
+      sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return CommunicationRemoteImpl.frbInternalSseDecode(
+        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  CommunicationRemote
+      sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return CommunicationRemoteImpl.frbInternalSseDecode(
+        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  CommunicationRemote
+      sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return CommunicationRemoteImpl.frbInternalSseDecode(
+        sse_decode_usize(deserializer), sse_decode_i_32(deserializer));
+  }
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_list_prim_u_8_strict(deserializer);
@@ -315,6 +466,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getBigUint64();
+  }
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
@@ -324,6 +481,36 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   bool sse_decode_bool(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  void
+      sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          CommunicationRemote self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+        (self as CommunicationRemoteImpl).frbInternalSseEncode(move: true),
+        serializer);
+  }
+
+  @protected
+  void
+      sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          CommunicationRemote self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+        (self as CommunicationRemoteImpl).frbInternalSseEncode(move: false),
+        serializer);
+  }
+
+  @protected
+  void
+      sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerCommunicationRemote(
+          CommunicationRemote self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+        (self as CommunicationRemoteImpl).frbInternalSseEncode(move: null),
+        serializer);
   }
 
   @protected
@@ -374,6 +561,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putBigUint64(self);
+  }
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
@@ -384,4 +577,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self ? 1 : 0);
   }
+}
+
+@sealed
+class CommunicationRemoteImpl extends RustOpaque
+    implements CommunicationRemote {
+  // Not to be used by end users
+  CommunicationRemoteImpl.frbInternalDcoDecode(List<dynamic> wire)
+      : super.frbInternalDcoDecode(wire, _kStaticData);
+
+  // Not to be used by end users
+  CommunicationRemoteImpl.frbInternalSseDecode(
+      BigInt ptr, int externalSizeOnNative)
+      : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
+
+  static final _kStaticData = RustArcStaticData(
+    rustArcIncrementStrongCount: RustLib
+        .instance.api.rust_arc_increment_strong_count_CommunicationRemote,
+    rustArcDecrementStrongCount: RustLib
+        .instance.api.rust_arc_decrement_strong_count_CommunicationRemote,
+    rustArcDecrementStrongCountPtr: RustLib
+        .instance.api.rust_arc_decrement_strong_count_CommunicationRemotePtr,
+  );
+
+  Future<void> addItem({required String name}) => RustLib.instance.api
+      .crateApiCommunicationCommunicationRemoteAddItem(that: this, name: name);
+
+  Future<void> deleteItem({required String id}) => RustLib.instance.api
+      .crateApiCommunicationCommunicationRemoteDeleteItem(that: this, id: id);
+
+  Future<List<Item>> getItems() =>
+      RustLib.instance.api.crateApiCommunicationCommunicationRemoteGetItems(
+        that: this,
+      );
+
+  Future<void> updateItem({required String id, required String newName}) =>
+      RustLib.instance.api.crateApiCommunicationCommunicationRemoteUpdateItem(
+          that: this, id: id, newName: newName);
 }

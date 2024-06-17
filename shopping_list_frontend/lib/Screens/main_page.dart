@@ -15,14 +15,12 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  // final Remote remote = Remote();
+  final CommunicationRemote remote = CommunicationRemote();
   void _reloadPage() {
     setState(() {});
   }
 
-  @override
-  void initState() {
-    // List<Item>> items = getItems();
-  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,14 +30,14 @@ class _MainPageState extends State<MainPage> {
           setState(() {});
         },
         onPressedAdd: () {
-          MyAlertDialog.addNewItem(context, _reloadPage);
+          MyAlertDialog.addNewItem(context, _reloadPage, remote);
           // setState(() {});
         },
       ),
       body: Column(
         children: [
           FutureBuilder<List<Item>>(
-              future: getItems(),
+              future: remote.getItems(),
               builder: (context, snapshot) {
                 // Check if the future has completed
                 if (snapshot.connectionState == ConnectionState.waiting) {
@@ -55,17 +53,17 @@ class _MainPageState extends State<MainPage> {
                         return ItemCard(
                           item: item,
                           onPressed: () {
-                            deleteItem(id: item.id.oid);
+                            remote.deleteItem(id: item.id.oid);
                             // snapshot.data!.removeAt(index);
                             // setState(() {});
                           },
                           deletePressed: () {
-                            deleteItem(id: item.id.oid);
+                            remote.deleteItem(id: item.id.oid);
                             _reloadPage();
                           },
                           updatePressed: () {
                             MyAlertDialog.showUpdateDialog(
-                                context, item.id.oid, _reloadPage);
+                                context, item.id.oid, _reloadPage, remote);
                           },
                           // deletePressed: () {},
                         );

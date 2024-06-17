@@ -7,11 +7,16 @@ import '../frb_generated.dart';
 import 'item_model.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<List<Item>> getItems() =>
-    RustLib.instance.api.crateApiCommunicationGetItems();
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<CommunicationRemote>>
+abstract class CommunicationRemote implements RustOpaqueInterface {
+  Future<void> addItem({required String name});
 
-Future<void> deleteItem({required String id}) =>
-    RustLib.instance.api.crateApiCommunicationDeleteItem(id: id);
+  Future<void> deleteItem({required String id});
 
-Future<void> addItem({required String name}) =>
-    RustLib.instance.api.crateApiCommunicationAddItem(name: name);
+  Future<List<Item>> getItems();
+
+  factory CommunicationRemote() =>
+      RustLib.instance.api.crateApiCommunicationCommunicationRemoteNew();
+
+  Future<void> updateItem({required String id, required String newName});
+}
